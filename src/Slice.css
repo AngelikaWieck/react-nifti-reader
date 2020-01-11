@@ -1,0 +1,8 @@
+.slice {
+  margin: 1em;
+}
+
+.slice-yz,
+.slice-xz {
+  transform: scale(-1);
+}
