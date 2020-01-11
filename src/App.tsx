@@ -8,9 +8,20 @@ import "./App.css";
 const App: React.FC = () => {
   const [slice, setSlice] = useState(0);
   const [image, setImage] = useState<NIFTIImage>();
+  const [maxValue, setMaxValue] = useState(200);
+  const [activeCanvas, setActiveCanvas] = useState<HTMLCanvasElement>();
+
+  function handleCanvasClick(canvas: HTMLCanvasElement) {
+    if (activeCanvas !== canvas) {
+      if (activeCanvas) activeCanvas.style.border = "none";
+      canvas.style.border = "5px solid red";
+      setActiveCanvas(canvas);
+    }
+  }
+
   return (
     <div className="App">
-      <p>
+      <div className="file-selector">
         Select a file:{" "}
         <input
           onChange={async event => {
@@ -23,27 +34,45 @@ const App: React.FC = () => {
           id="file"
           name="files"
         />
-      </p>
-      <div className="canvas-container">
-        <SliceXY slice={slice} image={image} />
-        <br />
-        <SliceYZ slice={slice} image={image} />
-        <br />
-        <SliceXZ slice={slice} image={image} />
-        <br />
       </div>
-      <input
-        className="slider"
-        id="myRange"
-        type="range"
-        min="0"
-        max="100"
-        step="1"
-        value={slice.toString()}
-        onChange={event => {
-          setSlice(+event.target.value);
-        }}
-      />
+      <div className="canvas-container">
+        <div className="main-view">
+          <SliceXY
+            handleCanvasClick={handleCanvasClick}
+            activeCanvas={activeCanvas}
+            slice={slice}
+            image={image}
+            setMaxValue={setMaxValue}
+          />
+        </div>
+        <div className="side-view-container">
+          <SliceYZ
+            handleCanvasClick={handleCanvasClick}
+            slice={slice}
+            image={image}
+            setMaxValue={setMaxValue}
+          />
+          <SliceXZ
+            handleCanvasClick={handleCanvasClick}
+            slice={slice}
+            image={image}
+            setMaxValue={setMaxValue}
+          />
+        </div>
+      </div>
+      <div className="slider-container">
+        <input
+          type="range"
+          className="slider"
+          min="0"
+          max={maxValue}
+          step="1"
+          value={slice.toString()}
+          onChange={event => {
+            setSlice(+event.target.value);
+          }}
+        />
+      </div>
     </div>
   );
 };
