@@ -10,23 +10,16 @@ const App: React.FC = observer(() => {
   const [image, setImage] = useState<NIFTIImage>();
 
   const store = useObservable({
-    slice: 0,
     maxValue: 200,
-    image: undefined,
     activeCanvas: 0, // 0: XY, 1: YZ, 2: XZ
     slices: [100, 100, 100],
-    setSlice(value: number) {
-      store.slice = value;
-    },
     setMaxValue(value: number) {
-      console.log(value);
       store.maxValue = value;
+    },
+    handleCanvasClick(id: number) {
+      store.activeCanvas = id;
     }
   });
-
-  function handleCanvasClick(id: number) {
-    store.activeCanvas = id;
-  }
 
   return (
     <div className="App">
@@ -47,22 +40,25 @@ const App: React.FC = observer(() => {
       <div className="canvas-container">
         <div className="main-view">
           <SliceXY
-            handleCanvasClick={handleCanvasClick}
-            slice={store.slices[0]}
+            handleCanvasClick={store.handleCanvasClick}
+            activeCanvas={store.activeCanvas}
+            slices={store.slices}
             image={image}
             setMaxValue={store.setMaxValue}
           />
         </div>
         <div className="side-view-container">
           <SliceYZ
-            handleCanvasClick={handleCanvasClick}
-            slice={store.slices[1]}
+            handleCanvasClick={store.handleCanvasClick}
+            activeCanvas={store.activeCanvas}
+            slices={store.slices}
             image={image}
             setMaxValue={store.setMaxValue}
           />
           <SliceXZ
-            handleCanvasClick={handleCanvasClick}
-            slice={store.slices[2]}
+            handleCanvasClick={store.handleCanvasClick}
+            activeCanvas={store.activeCanvas}
+            slices={store.slices}
             image={image}
             setMaxValue={store.setMaxValue}
           />
@@ -78,7 +74,6 @@ const App: React.FC = observer(() => {
           value={store.slices[store.activeCanvas]}
           onChange={event => {
             store.slices[store.activeCanvas] = +event.target.value;
-            store.setSlice(+event.target.value);
           }}
         />
       </div>

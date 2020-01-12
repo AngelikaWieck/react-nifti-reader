@@ -1,9 +1,9 @@
 import React from "react";
 import { SliceViewXZ } from "./SliceView";
-import SliceComponent, { SliceComponentProps } from "./Slice";
+import Slice, { SliceProps } from "./Slice";
 
-const SliceComponentXZ: React.FC<SliceComponentProps> = props => {
-  return <SliceComponent sliceViewClass={SliceViewXZ} {...props} />;
+const SliceXZ: React.FC<SliceProps> = props => {
+  return <Slice sliceViewClass={SliceViewXZ} {...props} />;
 };
 
-export default SliceComponentXZ;
+export default SliceXZ;

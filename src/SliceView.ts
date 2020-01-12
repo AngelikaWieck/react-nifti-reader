@@ -47,13 +47,21 @@ export class SliceView {
 
     // make canvas image data
     this.ctx = this.canvas.getContext("2d");
+    if (this.ctx) {
+      this.ctx.lineWidth = 5;
+      this.ctx.strokeStyle = "white";
+    }
   }
 
-  innerUpdate(canvasImageData: ImageData, slice: number) {
+  innerUpdate(canvasImageData: ImageData, slices: number[]) {
     throw new Error("No innerUpdate function, because this is the super class");
   }
 
-  update(slice: number) {
+  drawLines(slices: number[], activeCanvas: number) {
+    throw new Error("No innerUpdate function, because this is the super class");
+  }
+
+  update(slices: number[], activeCanvas: number) {
     if (!this.ctx) {
       return;
     }
@@ -63,14 +71,17 @@ export class SliceView {
       this.canvas.height
     );
 
-    this.innerUpdate(canvasImageData, slice);
+    this.innerUpdate(canvasImageData, slices);
 
     this.ctx.putImageData(canvasImageData, 0, 0);
+
+    this.drawLines(slices, activeCanvas);
   }
 }
 
 export class SliceViewXY extends SliceView {
   id = 0;
+  static flipVertically = true;
 
   get canvasDim(): [number, number] {
     return [this.cols, this.rows];
@@ -80,17 +91,36 @@ export class SliceViewXY extends SliceView {
     return this.slices;
   }
 
-  innerUpdate(canvasImageData: ImageData, slice: number) {
+  innerUpdate(canvasImageData: ImageData, slices: number[]) {
     let sliceSize = this.cols * this.rows;
-    let sliceOffset = sliceSize * slice;
-
+    let sliceOffset = sliceSize * slices[0];
     let canvasImageDataIndex = 0;
+
     for (let i = sliceOffset; i < sliceOffset + sliceSize; i++) {
       canvasImageData.data[canvasImageDataIndex] = this.image.data[i]; // r
       canvasImageData.data[canvasImageDataIndex + 1] = this.image.data[i]; // g
       canvasImageData.data[canvasImageDataIndex + 2] = this.image.data[i]; // b
       canvasImageData.data[canvasImageDataIndex + 3] = 0xff; // a
       canvasImageDataIndex += 4;
+    }
+  }
+
+  drawLines(slices: number[], activeCanvas: number) {
+    if (activeCanvas === 1) {
+      if (this.ctx) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(slices[1], 0);
+        this.ctx.lineTo(slices[1], this.rows);
+        this.ctx.stroke();
+      }
+    }
+    if (activeCanvas === 2) {
+      if (this.ctx) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, this.rows - slices[2]);
+        this.ctx.lineTo(this.cols, this.rows - slices[2]);
+        this.ctx.stroke();
+      }
     }
   }
 }
@@ -107,16 +137,36 @@ export class SliceViewYZ extends SliceView {
     return this.cols;
   }
 
-  innerUpdate(canvasImageData: ImageData, slice: number) {
+  innerUpdate(canvasImageData: ImageData, slices: number[]) {
     let sliceSize = this.cols * this.rows;
 
     let canvasImageDataIndex = 0;
-    for (let i = slice; i < sliceSize * this.slices; i += this.cols) {
+    for (let i = slices[1]; i < sliceSize * this.slices; i += this.cols) {
       canvasImageData.data[canvasImageDataIndex] = this.image.data[i];
       canvasImageData.data[canvasImageDataIndex + 1] = this.image.data[i];
       canvasImageData.data[canvasImageDataIndex + 2] = this.image.data[i];
       canvasImageData.data[canvasImageDataIndex + 3] = 0xff;
       canvasImageDataIndex += 4;
+    }
+  }
+
+  drawLines(slices: number[], activeCanvas: number) {
+    if (activeCanvas === 0) {
+      if (this.ctx) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, slices[0]);
+        this.ctx.lineTo(this.rows, slices[0]);
+        this.ctx.stroke();
+      }
+    }
+
+    if (activeCanvas === 2) {
+      if (this.ctx) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.rows - slices[2], 0);
+        this.ctx.lineTo(this.rows - slices[2], this.rows);
+        this.ctx.stroke();
+      }
     }
   }
 }
@@ -133,14 +183,14 @@ export class SliceViewXZ extends SliceView {
     return this.rows;
   }
 
-  innerUpdate(canvasImageData: ImageData, slice: number) {
+  innerUpdate(canvasImageData: ImageData, slices: number[]) {
     let sliceSize = this.cols * this.rows;
 
     let canvasImageDataIndex = 0;
     for (let i = 0; i < sliceSize * this.slices; i += sliceSize) {
       for (
-        let k = sliceSize - slice * this.cols;
-        k < sliceSize - slice * this.cols + this.cols;
+        let k = sliceSize - slices[2] * this.cols;
+        k < sliceSize - slices[2] * this.cols + this.cols;
         k++
       ) {
         canvasImageData.data[canvasImageDataIndex] = this.image.data[k + i];
@@ -148,6 +198,25 @@ export class SliceViewXZ extends SliceView {
         canvasImageData.data[canvasImageDataIndex + 2] = this.image.data[k + i];
         canvasImageData.data[canvasImageDataIndex + 3] = 0xff;
         canvasImageDataIndex += 4;
+      }
+    }
+  }
+
+  drawLines(slices: number[], activeCanvas: number) {
+    if (activeCanvas === 0) {
+      if (this.ctx) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, slices[0]);
+        this.ctx.lineTo(this.rows, slices[0]);
+        this.ctx.stroke();
+      }
+    }
+    if (activeCanvas === 1) {
+      if (this.ctx) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(slices[1], 0);
+        this.ctx.lineTo(slices[1], this.rows);
+        this.ctx.stroke();
       }
     }
   }

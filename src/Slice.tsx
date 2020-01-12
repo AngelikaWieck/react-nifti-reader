@@ -3,14 +3,15 @@ import NIFTIImage from "./NIFTIImage";
 import { SliceViewClass } from "./SliceView";
 import "./Slice.css";
 
-export interface SliceComponentProps {
+export interface SliceProps {
   handleCanvasClick: (id: number) => void;
-  slice: number;
+  activeCanvas: number;
+  slices: number[];
   image?: NIFTIImage;
   setMaxValue: (maxValue: number) => void;
 }
 
-const SliceComponent: React.FC<SliceComponentProps & {
+const Slice: React.FC<SliceProps & {
   sliceViewClass: SliceViewClass;
 }> = props => {
   let sliceViewRef = useRef<HTMLCanvasElement>(null);
@@ -21,7 +22,7 @@ const SliceComponent: React.FC<SliceComponentProps & {
         sliceViewRef.current,
         props.image
       );
-      sliceView.update(props.slice);
+      sliceView.update(props.slices, props.activeCanvas);
     }
   });
 
@@ -31,7 +32,7 @@ const SliceComponent: React.FC<SliceComponentProps & {
         sliceViewRef.current,
         props.image
       );
-      sliceView.update(props.slice);
+      sliceView.update(props.slices, props.activeCanvas);
       props.setMaxValue(sliceView.depth);
       props.handleCanvasClick(sliceView.id);
     }
@@ -49,4 +50,4 @@ const SliceComponent: React.FC<SliceComponentProps & {
   );
 };
 
-export default SliceComponent;
+export default Slice;
