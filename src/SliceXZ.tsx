@@ -1,36 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { SliceViewXZ } from "./SliceView";
-import NIFTIImage from "./NIFTIImage";
-import "./Slice.css";
+import SliceComponent, { SliceComponentProps } from "./Slice";
 
-const SliceComponentXZ: React.FC<{
-  handleCanvasClick: (canvas: HTMLCanvasElement) => void;
-  slice: number;
-  image?: NIFTIImage;
-  setMaxValue: (maxValue: number) => void;
-}> = props => {
-  let sliceViewXZRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    if (sliceViewXZRef.current) {
-      let sliceViewXZ = new SliceViewXZ(sliceViewXZRef.current, props.image);
-      sliceViewXZ.update(props.slice);
-    }
-  });
-
-  const handleClick = () => {
-    if (sliceViewXZRef.current) {
-      let sliceViewXZ = new SliceViewXZ(sliceViewXZRef.current, props.image);
-      props.setMaxValue(sliceViewXZ.rows);
-      props.handleCanvasClick(sliceViewXZRef.current);
-    }
-  };
-
-  return (
-    <div className="slice slice-xz" onClick={handleClick}>
-      <canvas ref={sliceViewXZRef}></canvas>
-    </div>
-  );
+const SliceComponentXZ: React.FC<SliceComponentProps> = props => {
+  return <SliceComponent sliceViewClass={SliceViewXZ} {...props} />;
 };
 
 export default SliceComponentXZ;

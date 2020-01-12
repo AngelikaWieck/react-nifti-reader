@@ -3,20 +3,29 @@ import NIFTIImage from "./NIFTIImage";
 import SliceXY from "./SliceXY";
 import SliceYZ from "./SliceYZ";
 import SliceXZ from "./SliceXZ";
+import { observer, useObservable } from "mobx-react-lite";
 import "./App.css";
 
-const App: React.FC = () => {
-  const [slice, setSlice] = useState(0);
+const App: React.FC = observer(() => {
   const [image, setImage] = useState<NIFTIImage>();
-  const [maxValue, setMaxValue] = useState(200);
-  const [activeCanvas, setActiveCanvas] = useState<HTMLCanvasElement>();
 
-  function handleCanvasClick(canvas: HTMLCanvasElement) {
-    if (activeCanvas !== canvas) {
-      if (activeCanvas) activeCanvas.style.border = "none";
-      canvas.style.border = "5px solid red";
-      setActiveCanvas(canvas);
+  const store = useObservable({
+    slice: 0,
+    maxValue: 200,
+    image: undefined,
+    activeCanvas: 0, // 0: XY, 1: YZ, 2: XZ
+    slices: [100, 100, 100],
+    setSlice(value: number) {
+      store.slice = value;
+    },
+    setMaxValue(value: number) {
+      console.log(value);
+      store.maxValue = value;
     }
+  });
+
+  function handleCanvasClick(id: number) {
+    store.activeCanvas = id;
   }
 
   return (
@@ -39,24 +48,23 @@ const App: React.FC = () => {
         <div className="main-view">
           <SliceXY
             handleCanvasClick={handleCanvasClick}
-            activeCanvas={activeCanvas}
-            slice={slice}
+            slice={store.slices[0]}
             image={image}
-            setMaxValue={setMaxValue}
+            setMaxValue={store.setMaxValue}
           />
         </div>
         <div className="side-view-container">
           <SliceYZ
             handleCanvasClick={handleCanvasClick}
-            slice={slice}
+            slice={store.slices[1]}
             image={image}
-            setMaxValue={setMaxValue}
+            setMaxValue={store.setMaxValue}
           />
           <SliceXZ
             handleCanvasClick={handleCanvasClick}
-            slice={slice}
+            slice={store.slices[2]}
             image={image}
-            setMaxValue={setMaxValue}
+            setMaxValue={store.setMaxValue}
           />
         </div>
       </div>
@@ -65,16 +73,17 @@ const App: React.FC = () => {
           type="range"
           className="slider"
           min="0"
-          max={maxValue}
+          max={store.maxValue}
           step="1"
-          value={slice.toString()}
+          value={store.slices[store.activeCanvas]}
           onChange={event => {
-            setSlice(+event.target.value);
+            store.slices[store.activeCanvas] = +event.target.value;
+            store.setSlice(+event.target.value);
           }}
         />
       </div>
     </div>
   );
-};
+});
 
 export default App;

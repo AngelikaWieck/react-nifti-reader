@@ -1,8 +1,12 @@
 import NIFTIImage from "./NIFTIImage";
 
-class SliceView {
+export type SliceViewClass = typeof SliceView;
+
+export class SliceView {
+  id = 0;
   ctx: CanvasRenderingContext2D | null = null;
   image: NIFTIImage = null as any;
+  static flipVertically = false;
 
   constructor(private canvas: HTMLCanvasElement, image?: NIFTIImage) {
     if (image) {
@@ -24,6 +28,10 @@ class SliceView {
 
   get slices() {
     return this.dims[3];
+  }
+
+  get depth(): number {
+    throw new Error("No depth getter, because this is the super class");
   }
 
   get canvasDim(): [number, number] {
@@ -62,8 +70,14 @@ class SliceView {
 }
 
 export class SliceViewXY extends SliceView {
+  id = 0;
+
   get canvasDim(): [number, number] {
     return [this.cols, this.rows];
+  }
+
+  get depth(): number {
+    return this.slices;
   }
 
   innerUpdate(canvasImageData: ImageData, slice: number) {
@@ -82,8 +96,15 @@ export class SliceViewXY extends SliceView {
 }
 
 export class SliceViewYZ extends SliceView {
+  id = 1;
+  static flipVertically = true;
+
   get canvasDim(): [number, number] {
     return [this.rows, this.slices];
+  }
+
+  get depth(): number {
+    return this.cols;
   }
 
   innerUpdate(canvasImageData: ImageData, slice: number) {
@@ -101,8 +122,15 @@ export class SliceViewYZ extends SliceView {
 }
 
 export class SliceViewXZ extends SliceView {
+  id = 2;
+  static flipVertically = true;
+
   get canvasDim(): [number, number] {
     return [this.cols, this.slices];
+  }
+
+  get depth(): number {
+    return this.rows;
   }
 
   innerUpdate(canvasImageData: ImageData, slice: number) {

@@ -2,7 +2,6 @@
   margin: 1em;
 }
 
-.slice-yz,
-.slice-xz {
+.flip-vertical {
   transform: scale(-1);
 }
