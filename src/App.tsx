@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import NIFTIImage from "./NIFTIImage";
-import SliceXY from "./SliceXY";
-import SliceYZ from "./SliceYZ";
-import SliceXZ from "./SliceXZ";
+import { SliceViewXY, SliceViewYZ, SliceViewXZ } from "./SliceView";
 import { observer, useObservable } from "mobx-react-lite";
+import Slice from "./Slice";
 import "./App.css";
 
 const App: React.FC = observer(() => {
@@ -13,6 +12,9 @@ const App: React.FC = observer(() => {
     maxValue: 200,
     activeCanvas: 0, // 0: XY, 1: YZ, 2: XZ
     slices: [100, 100, 100],
+    mainSliceViewClass: SliceViewXY,
+    topRightSliceViewClass: SliceViewYZ,
+    bottomRightSliceViewClass: SliceViewXZ,
     setMaxValue(value: number) {
       store.maxValue = value;
     },
@@ -20,6 +22,14 @@ const App: React.FC = observer(() => {
       store.activeCanvas = id;
     }
   });
+
+  const commonSliceProps = {
+    handleCanvasClick: store.handleCanvasClick,
+    activeCanvas: store.activeCanvas,
+    slices: store.slices,
+    image: image,
+    setMaxValue: store.setMaxValue,
+  }
 
   return (
     <div className="App">
@@ -39,28 +49,19 @@ const App: React.FC = observer(() => {
       </div>
       <div className="canvas-container">
         <div className="main-view">
-          <SliceXY
-            handleCanvasClick={store.handleCanvasClick}
-            activeCanvas={store.activeCanvas}
-            slices={store.slices}
-            image={image}
-            setMaxValue={store.setMaxValue}
+          <Slice
+            {...commonSliceProps}
+            sliceViewClass={store.mainSliceViewClass}
           />
         </div>
         <div className="side-view-container">
-          <SliceYZ
-            handleCanvasClick={store.handleCanvasClick}
-            activeCanvas={store.activeCanvas}
-            slices={store.slices}
-            image={image}
-            setMaxValue={store.setMaxValue}
+          <Slice
+            {...commonSliceProps}
+            sliceViewClass={store.topRightSliceViewClass}
           />
-          <SliceXZ
-            handleCanvasClick={store.handleCanvasClick}
-            activeCanvas={store.activeCanvas}
-            slices={store.slices}
-            image={image}
-            setMaxValue={store.setMaxValue}
+          <Slice
+            {...commonSliceProps}
+            sliceViewClass={store.bottomRightSliceViewClass}
           />
         </div>
       </div>
