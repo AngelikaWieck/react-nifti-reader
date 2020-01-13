@@ -57,11 +57,11 @@ export class SliceView {
     throw new Error("No innerUpdate function, because this is the super class");
   }
 
-  drawLines(slices: number[], activeCanvas: number) {
+  drawLines(slices: number[], windowID: number) {
     throw new Error("No innerUpdate function, because this is the super class");
   }
 
-  update(slices: number[], activeCanvas: number) {
+  update(slices: number[], mainView: number) {
     if (!this.ctx) {
       return;
     }
@@ -72,10 +72,10 @@ export class SliceView {
     );
 
     this.innerUpdate(canvasImageData, slices);
-
+    
     this.ctx.putImageData(canvasImageData, 0, 0);
-
-    this.drawLines(slices, activeCanvas);
+    
+    this.drawLines(slices, mainView);
   }
 }
 
@@ -105,8 +105,8 @@ export class SliceViewXY extends SliceView {
     }
   }
 
-  drawLines(slices: number[], activeCanvas: number) {
-    if (activeCanvas === 1) {
+  drawLines(slices: number[], mainView: number) {
+    if (mainView === 1) {
       if (this.ctx) {
         this.ctx.beginPath();
         this.ctx.moveTo(slices[1], 0);
@@ -114,7 +114,7 @@ export class SliceViewXY extends SliceView {
         this.ctx.stroke();
       }
     }
-    if (activeCanvas === 2) {
+    if (mainView === 2) {
       if (this.ctx) {
         this.ctx.beginPath();
         this.ctx.moveTo(0, this.rows - slices[2]);

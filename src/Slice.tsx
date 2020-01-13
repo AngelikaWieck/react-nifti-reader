@@ -4,16 +4,16 @@ import { SliceViewClass } from "./SliceView";
 import "./Slice.css";
 
 export interface SliceProps {
-  handleCanvasClick: (id: number) => void;
-  activeCanvas: number;
+  handleCanvasClick: (windowID: number, newMainView: number) => void;
   slices: number[];
   image?: NIFTIImage;
   setMaxValue: (maxValue: number) => void;
+  sliceViewClass: SliceViewClass;
+  windowID: number;
+  mainView: number;
 }
 
-const Slice: React.FC<SliceProps & {
-  sliceViewClass: SliceViewClass;
-}> = props => {
+const Slice: React.FC<SliceProps> = props => {
   let sliceViewRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const Slice: React.FC<SliceProps & {
         sliceViewRef.current,
         props.image
       );
-      sliceView.update(props.slices, props.activeCanvas);
+      sliceView.update(props.slices, props.mainView);
     }
   });
 
@@ -32,9 +32,9 @@ const Slice: React.FC<SliceProps & {
         sliceViewRef.current,
         props.image
       );
-      sliceView.update(props.slices, props.activeCanvas);
+      sliceView.update(props.slices, props.mainView);
       props.setMaxValue(sliceView.depth);
-      props.handleCanvasClick(sliceView.id);
+      props.handleCanvasClick(props.windowID, sliceView.id);
     }
   };
 

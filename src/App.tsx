@@ -10,25 +10,40 @@ const App: React.FC = observer(() => {
 
   const store = useObservable({
     maxValue: 200,
-    activeCanvas: 0, // 0: XY, 1: YZ, 2: XZ
     slices: [100, 100, 100],
     mainSliceViewClass: SliceViewXY,
     topRightSliceViewClass: SliceViewYZ,
     bottomRightSliceViewClass: SliceViewXZ,
+    mainView: 0, // 0: XY, 1: YZ, 2: XZ
     setMaxValue(value: number) {
       store.maxValue = value;
     },
-    handleCanvasClick(id: number) {
-      store.activeCanvas = id;
+    handleCanvasClick(windowID: number, newMainView: number) {
+      store.mainView = newMainView;
+      const oldMainSliceViewClass = store.mainSliceViewClass;
+      switch(windowID) {
+        case 1:
+          // switch main and topRight
+          store.mainSliceViewClass = store.topRightSliceViewClass;
+          store.topRightSliceViewClass = oldMainSliceViewClass;
+          break;
+        case 2:
+          // switch main and bottomRight
+          store.mainSliceViewClass = store.bottomRightSliceViewClass;
+          store.bottomRightSliceViewClass = oldMainSliceViewClass;
+          break;
+        default:
+          break;
+      }
     }
   });
 
   const commonSliceProps = {
     handleCanvasClick: store.handleCanvasClick,
-    activeCanvas: store.activeCanvas,
     slices: store.slices,
     image: image,
     setMaxValue: store.setMaxValue,
+    mainView: store.mainView,
   }
 
   return (
@@ -50,16 +65,19 @@ const App: React.FC = observer(() => {
       <div className="canvas-container">
         <div className="main-view">
           <Slice
+            windowID={0}
             {...commonSliceProps}
             sliceViewClass={store.mainSliceViewClass}
           />
         </div>
         <div className="side-view-container">
           <Slice
+            windowID={1}
             {...commonSliceProps}
             sliceViewClass={store.topRightSliceViewClass}
           />
           <Slice
+            windowID={2}
             {...commonSliceProps}
             sliceViewClass={store.bottomRightSliceViewClass}
           />
@@ -72,9 +90,9 @@ const App: React.FC = observer(() => {
           min="0"
           max={store.maxValue}
           step="1"
-          value={store.slices[store.activeCanvas]}
+          value={store.slices[store.mainView]}
           onChange={event => {
-            store.slices[store.activeCanvas] = +event.target.value;
+            store.slices[store.mainView] = +event.target.value;
           }}
         />
       </div>
