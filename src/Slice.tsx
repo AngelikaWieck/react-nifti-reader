@@ -20,6 +20,7 @@ const Slice: React.FC<SliceProps> = props => {
     if (sliceViewRef.current) {
       let sliceView = new props.sliceViewClass(
         sliceViewRef.current,
+        props.windowID === 0 ? 3 : 1,
         props.image
       );
       sliceView.update(props.slices, props.mainView);
@@ -30,6 +31,7 @@ const Slice: React.FC<SliceProps> = props => {
     if (sliceViewRef.current) {
       let sliceView = new props.sliceViewClass(
         sliceViewRef.current,
+        props.windowID === 0 ? 3 : 1,
         props.image
       );
       sliceView.update(props.slices, props.mainView);
