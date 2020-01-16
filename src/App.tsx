@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import NIFTIImage from "./NIFTIImage";
-import SliceXY from "./SliceXY";
-import SliceYZ from "./SliceYZ";
-import SliceXZ from "./SliceXZ";
+import { SliceViewXY, SliceViewYZ, SliceViewXZ } from "./SliceView";
 import { observer, useObservable } from "mobx-react-lite";
+import Slice from "./Slice";
 import "./App.css";
 
 const App: React.FC = observer(() => {
@@ -11,15 +10,41 @@ const App: React.FC = observer(() => {
 
   const store = useObservable({
     maxValue: 200,
-    activeCanvas: 0, // 0: XY, 1: YZ, 2: XZ
     slices: [100, 100, 100],
+    mainSliceViewClass: SliceViewXY,
+    topRightSliceViewClass: SliceViewYZ,
+    bottomRightSliceViewClass: SliceViewXZ,
+    mainView: 0, // 0: XY, 1: YZ, 2: XZ
     setMaxValue(value: number) {
       store.maxValue = value;
     },
-    handleCanvasClick(id: number) {
-      store.activeCanvas = id;
+    handleCanvasClick(windowID: number, newMainView: number) {
+      store.mainView = newMainView;
+      const oldMainSliceViewClass = store.mainSliceViewClass;
+      switch(windowID) {
+        case 1:
+          // switch main and topRight
+          store.mainSliceViewClass = store.topRightSliceViewClass;
+          store.topRightSliceViewClass = oldMainSliceViewClass;
+          break;
+        case 2:
+          // switch main and bottomRight
+          store.mainSliceViewClass = store.bottomRightSliceViewClass;
+          store.bottomRightSliceViewClass = oldMainSliceViewClass;
+          break;
+        default:
+          break;
+      }
     }
   });
+
+  const commonSliceProps = {
+    handleCanvasClick: store.handleCanvasClick,
+    slices: store.slices,
+    image: image,
+    setMaxValue: store.setMaxValue,
+    mainView: store.mainView,
+  }
 
   return (
     <div className="App">
@@ -39,28 +64,22 @@ const App: React.FC = observer(() => {
       </div>
       <div className="canvas-container">
         <div className="main-view">
-          <SliceXY
-            handleCanvasClick={store.handleCanvasClick}
-            activeCanvas={store.activeCanvas}
-            slices={store.slices}
-            image={image}
-            setMaxValue={store.setMaxValue}
+          <Slice
+            windowID={0}
+            {...commonSliceProps}
+            sliceViewClass={store.mainSliceViewClass}
           />
         </div>
         <div className="side-view-container">
-          <SliceYZ
-            handleCanvasClick={store.handleCanvasClick}
-            activeCanvas={store.activeCanvas}
-            slices={store.slices}
-            image={image}
-            setMaxValue={store.setMaxValue}
+          <Slice
+            windowID={1}
+            {...commonSliceProps}
+            sliceViewClass={store.topRightSliceViewClass}
           />
-          <SliceXZ
-            handleCanvasClick={store.handleCanvasClick}
-            activeCanvas={store.activeCanvas}
-            slices={store.slices}
-            image={image}
-            setMaxValue={store.setMaxValue}
+          <Slice
+            windowID={2}
+            {...commonSliceProps}
+            sliceViewClass={store.bottomRightSliceViewClass}
           />
         </div>
       </div>
@@ -71,9 +90,9 @@ const App: React.FC = observer(() => {
           min="0"
           max={store.maxValue}
           step="1"
-          value={store.slices[store.activeCanvas]}
+          value={store.slices[store.mainView]}
           onChange={event => {
-            store.slices[store.activeCanvas] = +event.target.value;
+            store.slices[store.mainView] = +event.target.value;
           }}
         />
       </div>
