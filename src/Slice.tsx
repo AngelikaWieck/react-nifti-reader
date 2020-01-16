@@ -15,12 +15,13 @@ export interface SliceProps {
 
 const Slice: React.FC<SliceProps> = props => {
   let sliceViewRef = useRef<HTMLCanvasElement>(null);
+  let scaleFactor = props.windowID === 0 ? 3 : 1; //TODO: calculate this somehow
 
   useEffect(() => {
     if (sliceViewRef.current) {
       let sliceView = new props.sliceViewClass(
         sliceViewRef.current,
-        props.windowID === 0 ? 3 : 1,
+        scaleFactor,
         props.image
       );
       sliceView.update(props.slices, props.mainView);
@@ -31,7 +32,7 @@ const Slice: React.FC<SliceProps> = props => {
     if (sliceViewRef.current) {
       let sliceView = new props.sliceViewClass(
         sliceViewRef.current,
-        props.windowID === 0 ? 3 : 1,
+        scaleFactor,
         props.image
       );
       sliceView.update(props.slices, props.mainView);
